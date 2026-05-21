@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="html-root">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ohad System | نظام عُهَد</title>
+<style>
+/* ─── Variables ──────────────────────────────────────────── */
+:root{
+  --pb:#1B3A6B; --sb:#2563EB; --lb:#DBEAFE; --acc:#F59E0B;
+  --grn:#10B981; --red:#EF4444; --ylw:#F59E0B;
+  --bg:#F1F5F9; --card:#FFFFFF; --border:#E2E8F0;
+  --text:#0F172A; --muted:#64748B; --wh:#FFFFFF;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 40px rgba(0,0,0,.14);
+  --rad:12px; --rad-sm:8px;
+  --font:'Segoe UI',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;
+  transition:direction .2s}
+body.rtl{direction:rtl;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+
+/* ─── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#F1F5F9}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+
+/* ─── Header ──────────────────────────────────────────────── */
+header{
+  background:linear-gradient(135deg,var(--pb) 0%,#1D4ED8 100%);
+  color:var(--wh);padding:0 28px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 20px rgba(27,58,107,.4);
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text h1{font-size:16px;font-weight:700;letter-spacing:.2px}
+.logo-text span{font-size:11px;opacity:.7}
+.header-right{display:flex;align-items:center;gap:10px}
+
+/* nav tabs */
+.nav-tabs{display:flex;gap:4px;background:rgba(255,255,255,.1);
+  padding:4px;border-radius:10px}
+.nav-tab{background:none;border:none;color:rgba(255,255,255,.75);
+  padding:7px 16px;border-radius:7px;cursor:pointer;font-size:13px;
+  font-weight:500;transition:all .2s;white-space:nowrap;font-family:inherit}
+.nav-tab:hover{color:var(--wh);background:rgba(255,255,255,.15)}
+.nav-tab.active{background:rgba(255,255,255,.22);color:var(--wh);font-weight:700}
+
+/* lang button */
+.lang-btn{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);
+  color:var(--wh);padding:6px 14px;border-radius:8px;cursor:pointer;
+  font-size:13px;font-weight:600;transition:all .2s;font-family:inherit}
+.lang-btn:hover{background:rgba(255,255,255,.22)}
+
+/* user chip */
+.user-chip{display:flex;align-items:center;gap:10px}
+.user-chip .info{text-align:right}
+body.rtl .user-chip .info{text-align:left}
+.user-chip .name{font-size:13px;font-weight:600}
+.user-chip .role{font-size:11px;opacity:.7}
+.avatar{width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acc),#F97316);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;flex-shrink:0}
+
+/* ─── Layout ──────────────────────────────────────────────── */
+.container{max-width:1200px;margin:0 auto;padding:28px 20px}
+.page{display:none}.page.active{display:block}
+
+/* ─── Stat Cards ──────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--rad);box-shadow:var(--shadow);
+  padding:20px;display:flex;align-items:center;gap:16px;
+  border-top:3px solid transparent;transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.stat-card.blue{border-top-color:var(--sb)}
+.stat-card.green{border-top-color:var(--grn)}
+.stat-card.orange{border-top-color:var(--acc)}
+.stat-card.red{border-top-color:var(--red)}
+.stat-icon{width:50px;height:50px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.stat-icon.blue{background:#EFF6FF}
+.stat-icon.green{background:#ECFDF5}
+.stat-icon.orange{background:#FFFBEB}
+.stat-icon.red{background:#FEF2F2}
+.stat-num{font-size:28px;font-weight:800;color:var(--pb);line-height:1}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500}
+
+/* ─── Card ────────────────────────────────────────────────── */
+.card{background:var(--card);border-radius:var(--rad);box-shadow:var(--shadow);
+  padding:24px;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:gap}
+.card-title{font-size:15px;font-weight:700;color:var(--pb);
+  display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';width:4px;height:18px;background:var(--sb);
+  border-radius:2px;flex-shrink:0}
+
+/* ─── Table ───────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;border-radius:var(--rad-sm);
+  border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead tr{background:linear-gradient(135deg,var(--pb),#1E40AF)}
+thead th{padding:12px 16px;text-align:start;font-weight:600;
+  font-size:12px;color:var(--wh);letter-spacing:.3px}
+tbody tr{border-bottom:1px solid #F1F5F9;transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F8FAFF}
+tbody td{padding:12px 16px;vertical-align:middle}
+
+/* ─── Badge ───────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.pending{background:#FEF9E7;color:#B45309}
+.badge.approved,.badge.active{background:#ECFDF5;color:#047857}
+.badge.returned{background:#F1F5F9;color:#475569}
+.badge.rejected{background:#FEF2F2;color:#DC2626}
+.badge.available{background:#EFF6FF;color:#1D4ED8}
+.badge.maintenance{background:#FFF7ED;color:#C2410C}
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+.btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;
+  font-size:13px;font-weight:600;transition:all .2s;
+  display:inline-flex;align-items:center;gap:7px;font-family:inherit;
+  white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--sb),#1D4ED8);color:var(--wh);
+  box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.btn-primary:hover{box-shadow:0 4px 14px rgba(37,99,235,.4);transform:translateY(-1px)}
+.btn-success{background:var(--grn);color:var(--wh);padding:7px 14px;font-size:12px}
+.btn-success:hover{background:#059669}
+.btn-danger{background:var(--red);color:var(--wh);padding:7px 14px;font-size:12px}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:transparent;color:var(--sb);border:1.5px solid var(--sb);
+  padding:7px 14px;font-size:12px}
+.btn-outline:hover{background:var(--lb)}
+.btn-sm{padding:5px 12px;font-size:11.5px;border-radius:6px}
+
+/* ─── Modal ───────────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);
+  backdrop-filter:blur(4px);z-index:300;
+  display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:16px;width:520px;max-width:100%;
+  box-shadow:var(--shadow-lg);animation:popIn .25s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{padding:22px 24px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:var(--pb)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;
+  color:var(--muted);width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-body{padding:22px 24px}
+.modal-foot{padding:16px 24px 22px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:10px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:700;
+  color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.form-group select,.form-group input,.form-group textarea{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:13.5px;color:var(--text);background:var(--card);outline:none;
+  transition:border .2s;font-family:inherit}
+.form-group select:focus,.form-group input:focus,.form-group textarea:focus{
+  border-color:var(--sb);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.form-group textarea{resize:vertical;min-height:88px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ─── Toast ───────────────────────────────────────────────── */
+.toast{position:fixed;bottom:28px;right:28px;padding:14px 20px;
+  border-radius:12px;font-size:13.5px;font-weight:600;
+  box-shadow:var(--shadow-lg);z-index:400;
+  transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.2,.64,1);
+  display:flex;align-items:center;gap:10px;max-width:340px}
+body.rtl .toast{right:auto;left:28px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#065F46;color:var(--wh)}
+.toast.error{background:#991B1B;color:var(--wh)}
+.toast.info{background:var(--pb);color:var(--wh)}
+
+/* ─── Timeline ────────────────────────────────────────────── */
+.timeline{display:flex;flex-direction:column;gap:14px}
+.tl-item{display:flex;gap:14px;align-items:flex-start}
+.tl-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px}
+.tl-icon.green{background:#ECFDF5}
+.tl-icon.blue{background:#EFF6FF}
+.tl-icon.orange{background:#FFFBEB}
+.tl-icon.red{background:#FEF2F2}
+.tl-body{flex:1}
+.tl-title{font-size:13.5px;font-weight:600;color:var(--text)}
+.tl-time{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+/* ─── Empty ───────────────────────────────────────────────── */
+.empty{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty-icon{font-size:52px;margin-bottom:14px}
+.empty p{font-size:14px}
+
+/* ─── Search bar ──────────────────────────────────────────── */
+.search-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-input{padding:9px 14px 9px 36px;border:1.5px solid var(--border);
+  border-radius:8px;font-size:13px;outline:none;transition:border .2s;
+  font-family:inherit;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+  width:220px}
+.search-input:focus{border-color:var(--sb)}
+.filter-select{padding:9px 12px;border:1.5px solid var(--border);
+  border-radius:8px;font-size:13px;outline:none;font-family:inherit}
+.filter-select:focus{border-color:var(--sb)}
+
+/* ─── Priority badge ──────────────────────────────────────── */
+.pri{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pri.urgent{background:#FEF2F2;color:#DC2626}
+.pri.critical{background:#FDF2F8;color:#9D174D}
+.pri.normal{background:#F1F5F9;color:#475569}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+@media(max-width:700px){
+  .nav-tabs{display:none}
+  header{padding:0 16px}
+  .container{padding:16px 12px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ──────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🗂️</div>
+    <div class="logo-text">
+      <h1 id="logo-title">Ohad System · نظام عُهَد</h1>
+      <span id="logo-sub">Internal Asset Management Platform</span>
+    </div>
+  </div>
+
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="nav-tab active" onclick="goPage('employee',this)" id="tab-emp">👤 Employee</button>
+    <button class="nav-tab" onclick="goPage('manager',this)"  id="tab-mgr">🔑 Manager</button>
+    <button class="nav-tab" onclick="goPage('inventory',this)" id="tab-inv">📦 Inventory</button>
+  </div>
+
+  <div class="header-right">
+    <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 عربي</button>
+    <div class="user-chip">
+      <div class="info">
+        <div class="name" id="hdr-name">Ahmed Al-Rashidi</div>
+        <div class="role" id="hdr-role">Employee · IT Dept.</div>
+      </div>
+      <div class="avatar" id="hdr-avatar">A</div>
+    </div>
+  </div>
+</header>
+
+<!-- ─── EMPLOYEE PAGE ──────────────────────────────────────── -->
+<div class="page active" id="page-employee">
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-icon blue">💻</div>
+      <div><div class="stat-num" id="s-my">2</div><div class="stat-label" id="sl-my">My Active Assets</div></div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon orange">⏳</div>
+      <div><div class="stat-num" id="s-pend">1</div><div class="stat-label" id="sl-pend">Pending Requests</div></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon green">✅</div>
+      <div><div class="stat-num" id="s-appr">5</div><div class="stat-label" id="sl-appr">Total Approved</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="ct-assets">My Current Assets · عُهَدي الحالية</div>
+      <button class="btn btn-primary" onclick="openModal('req-modal')" id="btn-req">➕ Request Asset</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th id="th-no">#</th>
+          <th id="th-asset">Asset</th>
+          <th id="th-cat">Category</th>
+          <th id="th-serial">Serial</th>
+          <th id="th-date">Assigned</th>
+          <th id="th-status">Status</th>
+          <th id="th-action">Action</th>
+        </tr></thead>
+        <tbody id="my-assets"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="ct-hist">Requests History · سجل الطلبات</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th id="th-rid">ID</th>
+          <th id="th-rasset">Asset Requested</th>
+          <th id="th-rdate">Date</th>
+          <th id="th-rstatus">Status</th>
+          <th id="th-rnote">Note</th>
+        </tr></thead>
+        <tbody id="my-reqs"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ─── MANAGER PAGE ───────────────────────────────────────── -->
+<div class="page" id="page-manager">
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-card orange">
+      <div class="stat-icon orange">📋</div>
+      <div><div class="stat-num" id="s-mgr-pend">0</div><div class="stat-label" id="sl-mgr-pend">Pending Approvals</div></div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-icon blue">📦</div>
+      <div><div class="stat-num">24</div><div class="stat-label" id="sl-total-assets">Total Assets</div></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon green">👥</div>
+      <div><div class="stat-num">8</div><div class="stat-label" id="sl-emp-assets">Employees w/ Assets</div></div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon red">⚠️</div>
+      <div><div class="stat-num">2</div><div class="stat-label" id="sl-overdue">Overdue Returns</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="ct-pending">Pending Approval Requests</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th id="th-emp">Employee</th>
+          <th id="th-masset">Asset</th>
+          <th id="th-just">Justification</th>
+          <th id="th-mdate">Date</th>
+          <th id="th-pri">Priority</th>
+          <th id="th-maction">Action</th>
+        </tr></thead>
+        <tbody id="pending-reqs"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="ct-log">Activity Log</div>
+    </div>
+    <div class="timeline" id="act-log"></div>
+  </div>
+</div>
+</div>
+
+<!-- ─── INVENTORY PAGE ─────────────────────────────────────── -->
+<div class="page" id="page-inventory">
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="ct-inv">Asset Inventory · مخزن الأصول</div>
+      <div class="search-bar">
+        <input type="text" id="inv-q" class="search-input"
+          placeholder="Search..." oninput="filterInv()">
+        <select id="inv-cat" class="filter-select" onchange="filterInv()">
+          <option value="" id="opt-all">All Categories</option>
+          <option>Laptop</option><option>Monitor</option>
+          <option>Mobile Phone</option><option>Vehicle</option><option>Access Card</option>
+        </select>
+        <select id="inv-status" class="filter-select" onchange="filterInv()">
+          <option value="" id="opt-allst">All Status</option>
+          <option value="active">Active</option>
+          <option value="available">Available</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th id="th-iid">ID</th>
+          <th id="th-iname">Asset Name</th>
+          <th id="th-icat">Category</th>
+          <th id="th-iser">Serial</th>
+          <th id="th-icond">Condition</th>
+          <th id="th-icust">Custodian</th>
+          <th id="th-idept">Dept.</th>
+          <th id="th-ist">Status</th>
+        </tr></thead>
+        <tbody id="inv-tbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="inv-count"></div>
+  </div>
+</div>
+</div>
+
+<!-- ─── REQUEST MODAL ──────────────────────────────────────── -->
+<div class="overlay" id="req-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="mod-req-title">➕ New Asset Request</div>
+      <button class="modal-close" onclick="closeModal('req-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label id="lbl-cat">Category</label>
+        <select id="req-cat" onchange="fillAssets()">
+          <option value="" id="opt-selcat">-- Select Category --</option>
+          <option>Laptop</option><option>Monitor</option>
+          <option>Mobile Phone</option><option>Vehicle</option><option>Access Card</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="lbl-item">Specific Asset</label>
+        <select id="req-item">
+          <option id="opt-selitem">-- Select category first --</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label id="lbl-from">From Date</label>
+          <input type="date" id="req-from">
+        </div>
+        <div class="form-group">
+          <label id="lbl-to">Until Date</label>
+          <input type="date" id="req-to">
+        </div>
+      </div>
+      <div class="form-group">
+        <label id="lbl-pri">Priority</label>
+        <select id="req-pri">
+          <option value="Normal" id="opt-norm">Normal</option>
+          <option value="Urgent" id="opt-urg">Urgent</option>
+          <option value="Critical" id="opt-crit">Critical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="lbl-just">Business Justification *</label>
+        <textarea id="req-just" id="lbl-just-ph"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('req-modal')" id="btn-cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="submitRequest()" id="btn-submit">📤 Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── RETURN MODAL ───────────────────────────────────────── -->
+<div class="overlay" id="ret-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="mod-ret-title">↩️ Return Asset</div>
+      <button class="modal-close" onclick="closeModal('ret-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:var(--muted);margin-bottom:18px" id="ret-desc">
+        Returning: <strong id="ret-name" style="color:var(--pb)"></strong>
+      </p>
+      <div class="form-group">
+        <label id="lbl-cond">Condition at Return</label>
+        <select id="ret-cond">
+          <option id="opt-good">Good – No damage</option>
+          <option id="opt-wear">Minor wear – Expected</option>
+          <option id="opt-maint">Needs maintenance</option>
+          <option id="opt-dmg">Damaged – Reporting</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="lbl-retnote">Notes (optional)</label>
+        <textarea id="ret-note"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('ret-modal')" id="btn-retcancel">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmReturn()" id="btn-confirm">✅ Confirm Return</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ──────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+// TRANSLATIONS
+// ════════════════════════════════════════════════
+const T = {
+  en:{
+    logoTitle:'Ohad System · نظام عُهَد',
+    logoSub:'Internal Asset Management Platform',
+    tabEmp:'👤 Employee', tabMgr:'🔑 Manager', tabInv:'📦 Inventory',
+    langBtn:'🌐 عربي',
+    hdrNameEmp:'Ahmed Al-Rashidi', hdrRoleEmp:'Employee · IT Dept.',
+    hdrNameMgr:'Abdullah Al-Otaibi', hdrRoleMgr:'Manager · IT Dept.',
+    slMy:'My Active Assets', slPend:'Pending Requests', slAppr:'Total Approved',
+    ctAssets:'My Current Assets · عُهَدي الحالية', btnReq:'➕ Request Asset',
+    ctHist:'Requests History · سجل الطلبات',
+    thNo:'#', thAsset:'Asset', thCat:'Category', thSerial:'Serial',
+    thDate:'Assigned', thStatus:'Status', thAction:'Action',
+    thRid:'ID', thRasset:'Asset Requested', thRdate:'Date',
+    thRstatus:'Status', thRnote:'Manager Note',
+    slMgrPend:'Pending Approvals', slTotalAssets:'Total Assets',
+    slEmpAssets:'Employees w/ Assets', slOverdue:'Overdue Returns',
+    ctPending:'Pending Approval Requests', ctLog:'Activity Log',
+    thEmp:'Employee', thMasset:'Asset', thJust:'Justification',
+    thMdate:'Date', thPri:'Priority', thMaction:'Action',
+    ctInv:'Asset Inventory · مخزن الأصول',
+    thIid:'ID', thIname:'Asset Name', thIcat:'Category', thISer:'Serial',
+    thIcond:'Condition', thIcust:'Custodian', thIdept:'Dept.', thIst:'Status',
+    optAll:'All Categories', optAllSt:'All Status',
+    modReqTitle:'➕ New Asset Request',
+    lblCat:'Category', optSelcat:'-- Select Category --',
+    lblItem:'Specific Asset', optSelitem:'-- Select category first --',
+    lblFrom:'From Date', lblTo:'Until Date',
+    lblPri:'Priority', optNorm:'Normal', optUrg:'Urgent', optCrit:'Critical',
+    lblJust:'Business Justification *',
+    justPh:'Explain why you need this asset and how it will be used...',
+    btnCancel:'Cancel', btnSubmit:'📤 Submit Request',
+    modRetTitle:'↩️ Return Asset',
+    retDesc:'Returning: ', lblCond:'Condition at Return',
+    optGood:'Good – No damage', optWear:'Minor wear – Expected',
+    optMaint:'Needs maintenance', optDmg:'Damaged – Reporting',
+    lblRetnote:'Notes (optional)',
+    btnRetcancel:'Cancel', btnConfirm:'✅ Confirm Return',
+    btnReturn:'↩️ Return', btnApprove:'✓ Approve', btnReject:'✕ Reject',
+    noAssets:'No assets currently assigned to you',
+    noPending:'All clear! No pending requests 🎉',
+    toastSubmit:'✅ Request submitted successfully!',
+    toastApprove:'✅ Request approved!',
+    toastReject:'❌ Request rejected.',
+    toastReturn:'↩️ Asset returned successfully!',
+    toastErr:'⚠️ Please fill all required fields.',
+    invCount:'Showing {n} assets',
+    sActive:'Active', sAvailable:'Available', sPending:'Pending',
+    sReturned:'Returned', sRejected:'Rejected', sMaint:'Maintenance',
+    sApproved:'Approved',
+  },
+  ar:{
+    logoTitle:'نظام عُهَد · Ohad System',
+    logoSub:'منصة إدارة الأصول الداخلية',
+    tabEmp:'👤 الموظف', tabMgr:'🔑 المدير', tabInv:'📦 المخزن',
+    langBtn:'🌐 English',
+    hdrNameEmp:'أحمد الراشدي', hdrRoleEmp:'موظف · قسم تقنية المعلومات',
+    hdrNameMgr:'عبدالله العتيبي', hdrRoleMgr:'مدير · قسم تقنية المعلومات',
+    slMy:'أصولي النشطة', slPend:'الطلبات المعلقة', slAppr:'إجمالي الموافقات',
+    ctAssets:'عُهَدي الحالية · My Current Assets', btnReq:'➕ طلب عهدة جديدة',
+    ctHist:'سجل الطلبات · Requests History',
+    thNo:'#', thAsset:'الأصل', thCat:'الفئة', thSerial:'الرقم التسلسلي',
+    thDate:'تاريخ التسليم', thStatus:'الحالة', thAction:'إجراء',
+    thRid:'الرقم', thRasset:'العهدة المطلوبة', thRdate:'التاريخ',
+    thRstatus:'الحالة', thRnote:'ملاحظة المدير',
+    slMgrPend:'بانتظار الموافقة', slTotalAssets:'إجمالي الأصول',
+    slEmpAssets:'موظفون لديهم عُهَد', slOverdue:'عُهَد متأخرة الإرجاع',
+    ctPending:'الطلبات بانتظار الموافقة', ctLog:'سجل الأنشطة',
+    thEmp:'الموظف', thMasset:'الأصل', thJust:'المبرر',
+    thMdate:'التاريخ', thPri:'الأولوية', thMaction:'إجراء',
+    ctInv:'مخزن الأصول · Asset Inventory',
+    thIid:'الرقم', thIname:'اسم الأصل', thIcat:'الفئة', thISer:'الرقم التسلسلي',
+    thIcond:'الحالة', thIcust:'المسؤول', thIdept:'القسم', thIst:'الوضع',
+    optAll:'كل الفئات', optAllSt:'كل الأوضاع',
+    modReqTitle:'➕ طلب عهدة جديدة',
+    lblCat:'الفئة', optSelcat:'-- اختر الفئة --',
+    lblItem:'الأصل المحدد', optSelitem:'-- اختر الفئة أولاً --',
+    lblFrom:'من تاريخ', lblTo:'حتى تاريخ',
+    lblPri:'الأولوية', optNorm:'عادي', optUrg:'عاجل', optCrit:'حرج',
+    lblJust:'المبرر التجاري *',
+    justPh:'اشرح سبب احتياجك للعهدة وكيف ستستخدمها...',
+    btnCancel:'إلغاء', btnSubmit:'📤 إرسال الطلب',
+    modRetTitle:'↩️ إرجاع العهدة',
+    retDesc:'إرجاع: ', lblCond:'حالة الأصل عند الإرجاع',
+    optGood:'جيدة – لا أضرار', optWear:'بلى طبيعي متوقع',
+    optMaint:'تحتاج صيانة', optDmg:'تالفة – إبلاغ',
+    lblRetnote:'ملاحظات (اختياري)',
+    btnRetcancel:'إلغاء', btnConfirm:'✅ تأكيد الإرجاع',
+    btnReturn:'↩️ إرجاع', btnApprove:'✓ موافقة', btnReject:'✕ رفض',
+    noAssets:'لا توجد عُهَد مسجلة لك حالياً',
+    noPending:'🎉 لا توجد طلبات معلقة',
+    toastSubmit:'✅ تم إرسال الطلب بنجاح!',
+    toastApprove:'✅ تمت الموافقة على الطلب!',
+    toastReject:'❌ تم رفض الطلب.',
+    toastReturn:'↩️ تم إرجاع العهدة بنجاح!',
+    toastErr:'⚠️ يرجى تعبئة جميع الحقول المطلوبة.',
+    invCount:'يعرض {n} أصل',
+    sActive:'نشط', sAvailable:'متاح', sPending:'معلق',
+    sReturned:'مُرجَع', sRejected:'مرفوض', sMaint:'صيانة',
+    sApproved:'موافق عليه',
+  }
+};
+let lang = 'en';
+const t = ()=>T[lang];
+
+function applyLang(){
+  const isAr = lang==='ar';
+  document.getElementById('html-root').lang = lang;
+  document.getElementById('html-root').dir  = isAr?'rtl':'ltr';
+  document.body.classList.toggle('rtl', isAr);
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};
+  const setAll=map=>Object.entries(map).forEach(([id,key])=>set(id,t()[key]));
+  setAll({
+    'logo-title':'logoTitle','logo-sub':'logoSub',
+    'tab-emp':'tabEmp','tab-mgr':'tabMgr','tab-inv':'tabInv',
+    'lang-btn':'langBtn',
+    'sl-my':'slMy','sl-pend':'slPend','sl-appr':'slAppr',
+    'ct-assets':'ctAssets','btn-req':'btnReq','ct-hist':'ctHist',
+    'th-no':'thNo','th-asset':'thAsset','th-cat':'thCat','th-serial':'thSerial',
+    'th-date':'thDate','th-status':'thStatus','th-action':'thAction',
+    'th-rid':'thRid','th-rasset':'thRasset','th-rdate':'thRdate',
+    'th-rstatus':'thRstatus','th-rnote':'thRnote',
+    'sl-mgr-pend':'slMgrPend','sl-total-assets':'slTotalAssets',
+    'sl-emp-assets':'slEmpAssets','sl-overdue':'slOverdue',
+    'ct-pending':'ctPending','ct-log':'ctLog',
+    'th-emp':'thEmp','th-masset':'thMasset','th-just':'thJust',
+    'th-mdate':'thMdate','th-pri':'thPri','th-maction':'thMaction',
+    'ct-inv':'ctInv','th-iid':'thIid','th-iname':'thIname',
+    'th-icat':'thIcat','th-iser':'thISer','th-icond':'thIcond',
+    'th-icust':'thIcust','th-idept':'thIdept','th-ist':'thIst',
+    'opt-all':'optAll','opt-allst':'optAllSt',
+    'mod-req-title':'modReqTitle','lbl-cat':'lblCat',
+    'opt-selcat':'optSelcat','lbl-item':'lblItem','opt-selitem':'optSelitem',
+    'lbl-from':'lblFrom','lbl-to':'lblTo','lbl-pri':'lblPri',
+    'opt-norm':'optNorm','opt-urg':'optUrg','opt-crit':'optCrit',
+    'lbl-just':'lblJust','btn-cancel':'btnCancel','btn-submit':'btnSubmit',
+    'mod-ret-title':'modRetTitle','ret-desc':'retDesc',
+    'lbl-cond':'lblCond','opt-good':'optGood','opt-wear':'optWear',
+    'opt-maint':'optMaint','opt-dmg':'optDmg',
+    'lbl-retnote':'lblRetnote','btn-retcancel':'btnRetcancel','btn-confirm':'btnConfirm',
+  });
+  const ph=document.getElementById('req-just');
+  if(ph)ph.placeholder=t().justPh;
+  renderAll();
+}
+
+function toggleLang(){
+  lang = lang==='en'?'ar':'en';
+  applyLang();
+}
+
+// ════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════
+const state = {
+  myAssets:[
+    {id:'A001',name:'Dell Latitude 5520 Laptop',cat:'Laptop',serial:'DL-5520-009',date:'2026-01-15'},
+    {id:'A002',name:'Dell 27" Monitor',cat:'Monitor',serial:'MN-270-042',date:'2026-02-03'},
+  ],
+  myReqs:[
+    {id:'REQ-003',asset:'iPhone 13 Pro – Mobile Phone',date:'2026-05-18',status:'pending',note:'—'},
+    {id:'REQ-002',asset:'Access Card – Building C',date:'2026-04-10',status:'approved',note:'Approved 3 months'},
+    {id:'REQ-001',asset:'HP EliteBook Laptop',date:'2026-03-01',status:'returned',note:'Returned in good condition'},
+  ],
+  pendingReqs:[
+    {id:'REQ-P01',emp:'Mohammed Al-Zahrani',empAr:'محمد الزهراني',dept:'Finance',deptAr:'المالية',
+     asset:'Laptop – Dell Latitude 5520',just:'Project deadline requires remote work capability',justAr:'الموعد النهائي للمشروع يتطلب العمل عن بُعد',date:'2026-05-19',pri:'Urgent'},
+    {id:'REQ-P02',emp:'Sara Al-Otaibi',empAr:'سارة العتيبي',dept:'HR',deptAr:'الموارد البشرية',
+     asset:'Monitor – ViewSonic 24"',just:'Current monitor has display issues',justAr:'الشاشة الحالية بها مشاكل في العرض',date:'2026-05-18',pri:'Normal'},
+    {id:'REQ-P03',emp:'Khalid Al-Dosari',empAr:'خالد الدوسري',dept:'Legal',deptAr:'الشؤون القانونية',
+     asset:'Mobile Phone – Samsung S24',just:'Required for field meetings and client comms',justAr:'مطلوب للاجتماعات الميدانية ومتابعة العملاء',date:'2026-05-17',pri:'Normal'},
+  ],
+  actLog:[
+    {icon:'✅',msg:'REQ-P00 Approved – HP Laptop for Ahmed',msgAr:'تمت الموافقة على REQ-P00 – لابتوب HP لأحمد',time:'Today 09:14',type:'green'},
+    {icon:'📥',msg:'New request from Sara Al-Otaibi (Monitor)',msgAr:'طلب جديد من سارة العتيبي (شاشة)',time:'Yesterday 16:32',type:'blue'},
+    {icon:'↩️',msg:'Asset A-088 returned by Nora Al-Ghamdi',msgAr:'تم إرجاع الأصل A-088 من نورا الغامدي',time:'Yesterday 11:05',type:'orange'},
+    {icon:'➕',msg:'5 new assets added to inventory',msgAr:'تمت إضافة 5 أصول جديدة للمخزن',time:'May 15, 2026',type:'blue'},
+  ],
+  inventory:[
+    {id:'A-001',name:'Dell Latitude 5520',cat:'Laptop',serial:'DL5520-009',cond:'Good',cust:'Ahmed Al-Rashidi',dept:'IT',status:'active'},
+    {id:'A-002',name:'Dell 27" Monitor',cat:'Monitor',serial:'MN270-042',cond:'Good',cust:'Ahmed Al-Rashidi',dept:'IT',status:'active'},
+    {id:'A-003',name:'HP EliteBook 840',cat:'Laptop',serial:'HP840-017',cond:'Good',cust:'—',dept:'—',status:'available'},
+    {id:'A-004',name:'ViewSonic 24" Monitor',cat:'Monitor',serial:'VS24-031',cond:'Good',cust:'—',dept:'—',status:'available'},
+    {id:'A-005',name:'iPhone 13 Pro',cat:'Mobile Phone',serial:'IPH13-055',cond:'Good',cust:'—',dept:'—',status:'available'},
+    {id:'A-006',name:'Toyota Hilux 2024',cat:'Vehicle',serial:'TH24-003',cond:'Good',cust:'Field Team',dept:'Operations',status:'active'},
+    {id:'A-007',name:'Access Card – Bldg A',cat:'Access Card',serial:'AC-A-099',cond:'Good',cust:'Nora Al-Ghamdi',dept:'Finance',status:'active'},
+    {id:'A-008',name:'Samsung Galaxy S24',cat:'Mobile Phone',serial:'SAM24-012',cond:'Good',cust:'—',dept:'—',status:'available'},
+    {id:'A-009',name:'MacBook Pro 14" M3',cat:'Laptop',serial:'MBP14-M3-007',cond:'Good',cust:'—',dept:'—',status:'maintenance'},
+    {id:'A-010',name:'Lenovo ThinkPad T14',cat:'Laptop',serial:'LTP-T14-022',cond:'Fair',cust:'Khalid Al-Dosari',dept:'Legal',status:'active'},
+  ],
+  assetMap:{
+    'Laptop':['Dell Latitude 5520','HP EliteBook 840','MacBook Pro 14" M3','Lenovo ThinkPad T14'],
+    'Monitor':['Dell 27" Monitor','ViewSonic 24" Monitor','LG 32" UltraWide'],
+    'Mobile Phone':['iPhone 13 Pro','Samsung Galaxy S24','Huawei P50'],
+    'Vehicle':['Toyota Hilux 2024','Ford F-150','Nissan Patrol'],
+    'Access Card':['Access Card – Bldg A','Access Card – Bldg B','Access Card – Bldg C'],
+  },
+  returnTarget:null,
+  reqCounter:4,
+};
+
+// ════════════════════════════════════════════════
+// STATUS LABELS
+// ════════════════════════════════════════════════
+function badgeHtml(status){
+  const map={active:'active',available:'available',pending:'pending',
+    returned:'returned',rejected:'rejected',maintenance:'maintenance',approved:'approved'};
+  const cls=map[status]||'returned';
+  const lbl={en:{active:'Active',available:'Available',pending:'Pending',
+    returned:'Returned',rejected:'Rejected',maintenance:'Maintenance',approved:'Approved'},
+    ar:{active:'نشط',available:'متاح',pending:'معلق',
+    returned:'مُرجَع',rejected:'مرفوض',maintenance:'صيانة',approved:'موافق'}};
+  return `<span class="badge ${cls}">${lbl[lang][status]||status}</span>`;
+}
+function priBadge(p){
+  const cls=p==='Urgent'?'urgent':p==='Critical'?'critical':'normal';
+  const lbl={en:{Urgent:'Urgent',Normal:'Normal',Critical:'Critical'},
+    ar:{Urgent:'عاجل',Normal:'عادي',Critical:'حرج'}};
+  return `<span class="pri ${cls}">${lbl[lang][p]||p}</span>`;
+}
+
+// ════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════
+let currentPage='employee';
+function goPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  currentPage=id;
+  const isEmp=id!=='manager';
+  document.getElementById('hdr-name').textContent=isEmp?t().hdrNameEmp:t().hdrNameMgr;
+  document.getElementById('hdr-role').textContent=isEmp?t().hdrRoleEmp:t().hdrRoleMgr;
+  document.getElementById('hdr-avatar').textContent=isEmp?'A':'A';
+  if(id==='inventory')renderInventory();
+  else renderAll();
+}
+
+// ════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════
+function renderAll(){renderEmployee();renderManager();}
+
+function renderEmployee(){
+  document.getElementById('s-my').textContent=state.myAssets.length;
+  document.getElementById('s-pend').textContent=state.myReqs.filter(r=>r.status==='pending').length;
+  document.getElementById('s-appr').textContent=state.myReqs.filter(r=>r.status==='approved').length+state.myAssets.length;
+
+  const at=document.getElementById('my-assets');
+  if(!state.myAssets.length){
+    at.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="empty-icon">📭</div><p>${t().noAssets}</p></div></td></tr>`;
+  } else {
+    at.innerHTML=state.myAssets.map((a,i)=>`
+      <tr>
+        <td style="color:var(--muted);font-size:12px">${i+1}</td>
+        <td><strong>${a.name}</strong></td>
+        <td>${a.cat}</td>
+        <td style="font-family:monospace;font-size:12px;color:var(--muted)">${a.serial}</td>
+        <td style="font-size:12.5px">${a.date}</td>
+        <td>${badgeHtml('active')}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="openReturn('${a.id}','${a.name}')">${t().btnReturn}</button></td>
+      </tr>`).join('');
+  }
+
+  const rt=document.getElementById('my-reqs');
+  rt.innerHTML=state.myReqs.map(r=>`
+    <tr>
+      <td style="font-size:12px;color:var(--muted);font-family:monospace">${r.id}</td>
+      <td>${r.asset}</td>
+      <td style="font-size:12.5px">${r.date}</td>
+      <td>${badgeHtml(r.status)}</td>
+      <td style="font-size:12.5px;color:var(--muted)">${r.note}</td>
+    </tr>`).join('');
+}
+
+function renderManager(){
+  document.getElementById('s-mgr-pend').textContent=state.pendingReqs.length;
+
+  const pt=document.getElementById('pending-reqs');
+  if(!state.pendingReqs.length){
+    pt.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">🎉</div><p>${t().noPending}</p></div></td></tr>`;
+  } else {
+    pt.innerHTML=state.pendingReqs.map(r=>`
+      <tr>
+        <td><strong>${lang==='ar'?r.empAr:r.emp}</strong><br>
+          <span style="font-size:11.5px;color:var(--muted)">${lang==='ar'?r.deptAr:r.dept}</span></td>
+        <td style="font-size:13px">${r.asset}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:180px">${lang==='ar'?r.justAr:r.just}</td>
+        <td style="font-size:12.5px;white-space:nowrap">${r.date}</td>
+        <td>${priBadge(r.pri)}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-success btn-sm" onclick="approve('${r.id}')">${t().btnApprove}</button>
+            <button class="btn btn-danger btn-sm"  onclick="reject('${r.id}')">${t().btnReject}</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  document.getElementById('act-log').innerHTML=state.actLog.map(a=>`
+    <div class="tl-item">
+      <div class="tl-icon ${a.type}">${a.icon}</div>
+      <div class="tl-body">
+        <div class="tl-title">${lang==='ar'?a.msgAr:a.msg}</div>
+        <div class="tl-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderInventory(data){
+  const inv=data||state.inventory;
+  document.getElementById('inv-tbody').innerHTML=inv.map(a=>`
+    <tr>
+      <td style="font-family:monospace;font-size:12px;color:var(--muted)">${a.id}</td>
+      <td><strong>${a.name}</strong></td>
+      <td style="font-size:13px">${a.cat}</td>
+      <td style="font-family:monospace;font-size:12px">${a.serial}</td>
+      <td>${a.cond}</td>
+      <td>${a.cust}</td>
+      <td>${a.dept}</td>
+      <td>${badgeHtml(a.status)}</td>
+    </tr>`).join('');
+  const cnt=document.getElementById('inv-count');
+  if(cnt)cnt.textContent=t().invCount.replace('{n}',inv.length);
+}
+
+function filterInv(){
+  const q=document.getElementById('inv-q').value.toLowerCase();
+  const cat=document.getElementById('inv-cat').value;
+  const st=document.getElementById('inv-status').value;
+  renderInventory(state.inventory.filter(a=>{
+    const mq=!q||a.name.toLowerCase().includes(q)||a.serial.toLowerCase().includes(q)||a.cust.toLowerCase().includes(q);
+    const mc=!cat||a.cat===cat;
+    const ms=!st||a.status===st;
+    return mq&&mc&&ms;
+  }));
+}
+
+// ════════════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{
+  if(e.target===o)o.classList.remove('open');
+}));
+
+function fillAssets(){
+  const cat=document.getElementById('req-cat').value;
+  const sel=document.getElementById('req-item');
+  if(!cat){sel.innerHTML=`<option>${t().optSelitem}</option>`;return;}
+  sel.innerHTML=(state.assetMap[cat]||[]).map(o=>`<option>${o}</option>`).join('');
+}
+
+function submitRequest(){
+  const cat=document.getElementById('req-cat').value;
+  const item=document.getElementById('req-item').value;
+  const just=document.getElementById('req-just').value.trim();
+  const from=document.getElementById('req-from').value;
+  const to=document.getElementById('req-to').value;
+  if(!cat||!item||item.includes('Select')||item.includes('اختر')||!just||!from||!to){
+    toast(t().toastErr,'error');return;
+  }
+  const id=`REQ-00${state.reqCounter++}`;
+  state.myReqs.unshift({id,asset:`${item} – ${cat}`,date:today(),status:'pending',note:'—'});
+  state.pendingReqs.unshift({id,emp:'Ahmed Al-Rashidi',empAr:'أحمد الراشدي',dept:'IT',deptAr:'تقنية المعلومات',
+    asset:`${item} – ${cat}`,just,justAr:just,date:today(),
+    pri:document.getElementById('req-pri').value});
+  closeModal('req-modal');
+  renderEmployee();renderManager();
+  toast(t().toastSubmit,'success');
+}
+
+function openReturn(id,name){
+  state.returnTarget=id;
+  document.getElementById('ret-name').textContent=name;
+  document.getElementById('ret-note').value='';
+  openModal('ret-modal');
+}
+function confirmReturn(){
+  const idx=state.myAssets.findIndex(a=>a.id===state.returnTarget);
+  if(idx===-1){closeModal('ret-modal');return;}
+  const a=state.myAssets[idx];
+  state.actLog.unshift({icon:'↩️',
+    msg:`Asset ${a.id} (${a.name}) returned by Ahmed`,
+    msgAr:`تم إرجاع الأصل ${a.id} (${a.name}) من أحمد`,
+    time:'Just now',type:'orange'});
+  state.myAssets.splice(idx,1);
+  closeModal('ret-modal');
+  renderEmployee();renderManager();
+  toast(t().toastReturn,'success');
+}
+
+function approve(id){
+  const idx=state.pendingReqs.findIndex(r=>r.id===id);
+  if(idx===-1)return;
+  const r=state.pendingReqs[idx];
+  state.pendingReqs.splice(idx,1);
+  state.actLog.unshift({icon:'✅',
+    msg:`${id} approved – ${r.asset} for ${r.emp}`,
+    msgAr:`تمت الموافقة على ${id} – ${r.asset} لـ${r.empAr}`,
+    time:'Just now',type:'green'});
+  renderManager();
+  toast(t().toastApprove,'success');
+}
+function reject(id){
+  const idx=state.pendingReqs.findIndex(r=>r.id===id);
+  if(idx===-1)return;
+  const r=state.pendingReqs[idx];
+  state.pendingReqs.splice(idx,1);
+  state.actLog.unshift({icon:'❌',
+    msg:`${id} rejected – ${r.asset} for ${r.emp}`,
+    msgAr:`تم رفض ${id} – ${r.asset} لـ${r.empAr}`,
+    time:'Just now',type:'red'});
+  renderManager();
+  toast(t().toastReject,'error');
+}
+
+// ════════════════════════════════════════════════
+// TOAST & UTILS
+// ════════════════════════════════════════════════
+function toast(msg,type='info'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className=`toast ${type} show`;
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),3500);
+}
+function today(){return new Date().toISOString().split('T')[0];}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+document.getElementById('req-from').value=today();
+applyLang();
+renderInventory();
+</script>
+</body>
+</html>
